@@ -21,20 +21,19 @@ BEGIN
 END;
 
 --Trigger pra saber valor por parcela
-create trigger Ao_inserir_venda on Venda
-after insert
-as
-begin
-	declare
-	@nmr_parcela int,
-	@valor_parcela decimal(10, 2),
-	@valorTotal decimal (10, 2),
-	@dataVencimento date
-	
-	select @nmr_parcela = nmr_parcela, @valorTotal = valor_total from inserted
-	SET @valor_parcela = @valorTotal / CAST(@nmr_parcela AS DECIMAL(10,2));
+CREATE trigger Ao_inserir_venda
+ON Venda
+instead of insert
+AS
+BEGIN
+	insert into Venda (id_cliente, id_produto, data_venda, quantidade, valor_total, nmr_parcela)
+	select i.id_cliente, i.id_produto, i.data_venda, i.quantidade, p.preco * i.quantidade, i.nmr_parcela
+	from inserted i
+	inner join produto p on p.id = i.id_produto;
 
-	insert into Parcelas (total_parcelas, valor_p_parcela, parcelas_pagas, data_parcela, atrasos) values (@nmr_parcela, @valor_parcela, 0, GETDATE(), 0);
-
-
-end
+	-- insere os valores nos campos com valor calculado
+	INSERT INTO Parcelas (total_parcelas, valor_p_parcela, parcelas_pagas , data_parcela, atrasos)
+    select i.nmr_parcela, p.preco * i.quantidade / cast(i.nmr_parcela as decimal (10,2)), 1, GETDATE(), 0 
+	from inserted i
+	inner join produto p on p.id = i.id_produto;
+END;

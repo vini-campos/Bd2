@@ -21,7 +21,7 @@ create table Venda(
 	id_produto int foreign key references Produto(id),
 	data_venda date not null,
 	quantidade int not null,
-	valor_total float not null,
+	valor_total float, -- nao precisa do not null porque o trigger ja adiciona
 	nmr_parcela int not null
 );
 
