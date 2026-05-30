@@ -46,3 +46,14 @@ create table contas_receber(
     valor_parcela money not null,
     data_pagamento date
 );
+
+create table feriados_fixos(
+	mes int not null,
+	dia int not null,
+	descricao varchar(100) not null
+);
+
+create table feriados_do_ano(
+	dataFeriado date primary key,
+	descricao varchar(100) not null
+);
