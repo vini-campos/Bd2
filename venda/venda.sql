@@ -38,3 +38,11 @@ create table Saldo(
 	id_produto int foreign key references Produto(id) not null,
 	Saldo_produto decimal not null
 );
+
+create table contas_receber(
+    id_venda int not null,
+    nmr_parcela int not null,
+    data_vencimento date,
+    valor_parcela money not null,
+    data_pagamento date
+);
