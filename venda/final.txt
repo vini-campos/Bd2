@@ -49,10 +49,12 @@ values (1,  1,  'Confraternização Universal'),
 	(11, 20, 'Consciência Negra'),
 	(12, 25, 'Natal');
 
-insert into feriados_do_ano(dataFeriado, descricao)
-values ('2026-03-04', 'Carnaval'),
-	('2026-04-18', 'Sexta-feira Santa'),
-	('2026-06-19', 'Corpus Christi');
+--mudei e adicionei data do proximo ano
+INSERT INTO feriados_do_ano(dataFeriado, dataProxAno, descricao)
+VALUES 
+    ('2026-02-17', '2027-02-09', 'Carnaval'),
+    ('2026-04-03', '2027-03-26', 'Sexta-feira Santa'),
+    ('2026-06-04', '2027-05-27', 'Corpus Christi');
 
 select * from feriados_do_ano
 select * from feriados_fixos

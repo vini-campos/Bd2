@@ -1,0 +1,60 @@
+create trigger Validar_Datas_Contas on contas_receber 
+after insert
+as
+begin
+	declare
+		@id int,
+		@dataInserida date,
+		@dataVencimento date
+
+	select @dataInserida = data_pagamento, @id = id_venda, @dataVencimento = data_vencimento from inserted
+	set @dataVencimento = DATEADD(month, 1, @dataInserida)
+	
+	--esse datepart é p saber o dia da semana, pesquisa se precisar pq ainda to aprendendo sobre ele
+	while @dataVencimento in (SELECT dataFeriado FROM feriados_do_ano) or DATEPART(WEEKDAY, @dataVencimento) IN (1,7)
+	begin
+	--enquanto datavencimento é um dos valores la na tabela feriados ou final de semana ele vai adicionar um dia
+		set @dataVencimento = DATEADD(day, 1, @dataVencimento)
+	end
+
+	--arrumar condicional do where
+	UPDATE contas_receber SET data_vencimento = @dataVencimento WHERE id_venda = @id;
+end
+
+
+--inserts q eu n tinha
+insert into Venda (id_cliente, id_produto, data_venda, quantidade, nmr_parcela) values (1, 1, DATEADD(month, -1, '2026-12-25'), 3, 2);
+
+insert into Produto(nome, preco, categoria, descricao) values('Nescau', 6.7, 'Achocolatado', 'Chocolate Gostoso')
+
+--trigger de venda q ta aqui pq eu tava textando, linha alterada ta cm comentario
+CREATE trigger Ao_inserir_venda
+ON Venda
+instead of insert
+AS
+BEGIN
+	declare @id_venda int
+
+	insert into Venda (id_cliente, id_produto, data_venda, quantidade, valor_total, nmr_parcela)
+	select i.id_cliente, i.id_produto, i.data_venda, i.quantidade, p.preco * i.quantidade, i.nmr_parcela
+	from inserted i
+	inner join produto p on p.id = i.id_produto;
+
+	-- pega o id do ultimo indice feito com o insert into
+	set @id_venda = SCOPE_IDENTITY();
+
+	-- insere os valores nos campos com valor calculado
+	INSERT INTO Parcelas (total_parcelas, valor_p_parcela, parcelas_pagas , data_parcela, atrasos)
+    select i.nmr_parcela, p.preco * i.quantidade / cast(i.nmr_parcela as decimal (10,2)), 1, GETDATE(), 0 
+	from inserted i
+	inner join produto p on p.id = i.id_produto;
+
+	-- insere na tabela contas_receber
+	-- o DATEADD(day, 7, GETDATE()) está como vencimento em 7 dias, deixar no padrao de não ser final de semana e nem feriado
+	-- a data de pagamento está como getdate(), trocar se necessario
+	insert into contas_receber(id_venda, nmr_parcela, data_vencimento, valor_parcela, data_pagamento)
+	--*** o dateadd eu agr aumenta um mês
+	select	@id_venda, i.nmr_parcela, DATEADD(month, 1, i.data_venda), p.preco * i.quantidade / cast(i.nmr_parcela as decimal (10,2)), GETDATE()
+	from inserted i
+	inner join produto p on p.id = i.id_produto;
+END;

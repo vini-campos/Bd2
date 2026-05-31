@@ -55,5 +55,8 @@ create table feriados_fixos(
 
 create table feriados_do_ano(
 	dataFeriado date primary key,
+	--nova coluna abaixo
+	dataProxAno date,
+
 	descricao varchar(100) not null
 );
