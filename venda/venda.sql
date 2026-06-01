@@ -31,7 +31,6 @@ CREATE TABLE parcelas(
 	valor_p_parcela decimal(10,2),
 	parcelas_pagas int not null,
 	data_parcela date not null,
-	atrasos int
 );
 
 create table Saldo(
@@ -47,6 +46,14 @@ create table contas_receber(
     data_pagamento date
 );
 
+create table movimento(
+	id int primary key identity(1,1),
+	id_produto int not null,
+	quantidade int not null,
+	tipo char(1) not null check(tipo in ('E', 'S')), -- check é o equivalente ao enum do mysql que vimos em pw
+	data_movimento date default getdate()
+);
+
 create table feriados_fixos(
 	mes int not null,
 	dia int not null,
@@ -57,6 +64,5 @@ create table feriados_do_ano(
 	dataFeriado date primary key,
 	--nova coluna abaixo
 	dataProxAno date,
-
 	descricao varchar(100) not null
 );
