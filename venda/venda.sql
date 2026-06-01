@@ -1,6 +1,5 @@
 CREATE DATABASE financeiro;
 USE financeiro;
-
 CREATE TABLE Cliente(
 	id int identity(1,1) primary key,
 	nome VARCHAR(255) NOT NULL,
@@ -55,14 +54,11 @@ create table movimento(
 );
 
 create table feriados_fixos(
-	mes int not null,
-	dia int not null,
+	data_feriado date,
 	descricao varchar(100) not null
 );
 
 create table feriados_do_ano(
 	dataFeriado date primary key,
-	--nova coluna abaixo
-	dataProxAno date,
 	descricao varchar(100) not null
 );

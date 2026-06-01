@@ -16,7 +16,7 @@ BEGIN
 
 	-- insere os valores nos campos com valor calculado
 	INSERT INTO Parcelas (total_parcelas, valor_p_parcela, parcelas_pagas , data_parcela)
-    select i.nmr_parcela, p.preco * i.quantidade / cast(i.nmr_parcela as decimal (10,2)), 1, GETDATE()
+    select i.nmr_parcela, p.preco * i.quantidade / cast(i.nmr_parcela as decimal (10,2)), 1, GETDATE() -- cast foi usado para não cortar a vírgula do numero decimal
 	from inserted i
 	inner join produto p on p.id = i.id_produto;
 
@@ -25,12 +25,12 @@ BEGIN
 	from inserted i;
 
 	while @data_vencimento in (select dataFeriado from feriados_do_ano)
-		or DATENAME(WEEKDAY, @data_vencimento) in ('Saturday', 'Sunday')
+		or DATENAME(WEEKDAY, @data_vencimento) in ('Sábado', 'Domingo')--so funciona para dias em portugues (linguagem do sqlserver da escola)
+		or @data_vencimento in (select data_feriado from feriados_fixos)
 	begin
 		set @data_vencimento = DATEADD(day, 1, @data_vencimento);
 	end
 
-	-- o agora ao inves de dateadd(day, 7, getdate()), esta com a variavel do dia util ja calculado com o while
 	insert into contas_receber(id_venda, nmr_parcela, data_vencimento, valor_parcela, data_pagamento)
 	select	@id_venda,
 			i.nmr_parcela,
@@ -46,18 +46,22 @@ BEGIN
 	from inserted i;
 END;
 
--- atualiza na tabela saldo e marca na tabela movimento
 create trigger Atualizar_saldo
 on movimento
 after insert
 as
 begin
+	declare 
+		@e_s int
+
+	select @e_s = case
+		when i.tipo = 'E' then i.quantidade -- entrada, soma
+		when i.tipo = 'S' then - i.quantidade-- saida, subtrai
+	end
+	from inserted i
+
 	update Saldo
-	set Saldo_produto = s.Saldo_produto + 
-		case
-			when i.tipo = 'E' then i.quantidade -- entrada, soma
-			when i.tipo = 'S' then - i.quantidade -- saida, subtrai
-		end
+	set Saldo_produto = s.Saldo_produto + @e_s
 	from Saldo s
 	inner join inserted i on s.id_produto = i.id_produto
 end;
