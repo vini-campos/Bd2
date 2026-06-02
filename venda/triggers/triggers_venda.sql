@@ -15,8 +15,8 @@ BEGIN
 	SET @id_venda = SCOPE_IDENTITY();
 
 	-- insere os valores nos campos com valor calculado
-	INSERT INTO Parcelas (total_parcelas, valor_p_parcela, parcelas_pagas, data_parcela)
-	SELECT i.nmr_parcela, p.preco * i.quantidade / CAST(i.nmr_parcela AS DECIMAL(10,2)), 1, GETDATE() -- cast foi usado para não cortar a vírgula do numero decimal
+	INSERT INTO Parcelas (id_venda, total_parcelas, valor_p_parcela, parcelas_pagas, data_parcela)
+	SELECT @id_venda, i.nmr_parcela, p.preco * i.quantidade / CAST(i.nmr_parcela AS DECIMAL(10,2)), 1, GETDATE() -- cast foi usado para não cortar a vírgula do numero decimal
 	FROM inserted i
 	INNER JOIN produto p ON p.id = i.id_produto;
 
@@ -41,8 +41,8 @@ BEGIN
 	INNER JOIN produto p ON p.id = i.id_produto;
 
 	-- saida na tabela de movimentos
-	INSERT INTO movimento (id_produto, quantidade, tipo)
-	SELECT i.id_produto, i.quantidade, 'S' -- sempre S porque e uma saida
+	INSERT INTO movimento (id_produto, quantidade, tipo, data_movimento)
+	SELECT i.id_produto, i.quantidade, 'S', GETDATE() -- sempre S porque e uma saida
 	FROM inserted i;
 END;
 
