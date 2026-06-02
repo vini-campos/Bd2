@@ -36,7 +36,11 @@ Desenvolvimento de Sistemas ETEC Fernando Prestes.
 - Triggers para automação de regras
 - Modelagem de tabelas com relacionamentos
 - Lógica de verificação de dias úteis para cobrança de parcelas
-- Stored procedures organizadas por contexto
+- Stored procedures organizadas por contexto  
+
+## DIAGRAMA DO BANCO: FINANCEIRO
+
+![Schema do banco de dados](assets/schema.png)
 
 ## 🎓 AUTORIA
 
