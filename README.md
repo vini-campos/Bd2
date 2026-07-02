@@ -26,17 +26,10 @@ Desenvolvimento de Sistemas ETEC Fernando Prestes.
     └── venda.sql
 ```
 
-## 🛠️ Tecnologias
+## Tecnologias
 
 - SQL Server
 - T-SQL
-
-## 📌 Destaques
-
-- Triggers para automação de regras
-- Modelagem de tabelas com relacionamentos
-- Lógica de verificação de dias úteis para cobrança de parcelas
-- Stored procedures organizadas por contexto  
 
 ## DIAGRAMA DO BANCO: FINANCEIRO
 
