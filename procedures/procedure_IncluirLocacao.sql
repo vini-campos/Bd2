@@ -26,22 +26,27 @@ create procedure IncluirLocacao
     @ID_Filme int
 as
 begin
-    update locacoes
-    set data_retirada = getdate()
-    where cod_cliente = @ID_Cliente and cod_filme = @ID_Filme and data_retirada is null;
+    IF ( SELECT status FROM filmes WHERE cod_filme = @ID_Filme) != 'alugado'
+    begin
+        update locacoes
+        set data_retirada = getdate()
+        where cod_cliente = @ID_Cliente and cod_filme = @ID_Filme and data_retirada is null;
 
-    update locacoes
-    set data_devolucao_prevista = dateadd(day, 7, getdate())
-    where cod_cliente = @ID_Cliente and cod_filme = @ID_Filme and data_devolucao_prevista is null;
+        update locacoes
+        set data_devolucao_prevista = dateadd(day, 7, getdate())
+        where cod_cliente = @ID_Cliente and cod_filme = @ID_Filme and data_devolucao_prevista is null;
 
-    update locacoes
-    set data_devolucao = null
-    where @ID_Cliente = cod_cliente and @ID_Filme = cod_filme;
+        update locacoes
+        set data_devolucao = null
+        where @ID_Cliente = cod_cliente and @ID_Filme = cod_filme;
 
-    -- Atualiza status 
-    update filmes
-    set status = 'alugado'
-    where cod_filme = @ID_Filme;
+        -- Atualiza status 
+        update filmes
+        set status = 'alugado', vezes_alugado = vezes_alugado + 1
+        where cod_filme = @ID_Filme;
+    end
 end
 
-exec IncluirLocacao @ID_Cliente = 3, @ID_Filme = 17;
+drop procedure IncluirLocacao
+
+exec IncluirLocacao @ID_Cliente = 3, @ID_Filme = 3;
